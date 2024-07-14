@@ -32,15 +32,11 @@ public static class DependencyInjection
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
 
                 options
-                    .UseSqlServer(
+                    .UseNpgsql(
                         connectionString,
                         o =>
                             o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
-                                .EnableRetryOnFailure(
-                                    maxRetryCount: 5,
-                                    maxRetryDelay: TimeSpan.FromSeconds(30),
-                                    errorNumbersToAdd: null
-                                )
+                                .EnableRetryOnFailure(maxRetryCount: 5)
                     )
                     .LogTo(
                         s => Debug.WriteLine(s),
