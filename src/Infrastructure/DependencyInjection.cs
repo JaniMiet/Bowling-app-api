@@ -1,14 +1,14 @@
 ﻿using System.Diagnostics;
+using System.Security.Claims;
 using BowlingApp.Application.Common.Interfaces;
-using BowlingApp.Domain.Constants;
 using BowlingApp.Infrastructure.Data;
 using BowlingApp.Infrastructure.Data.Interceptors;
-using BowlingApp.Infrastructure.Identity;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -50,22 +50,21 @@ public static class DependencyInjection
 
         services.AddScoped<ApplicationDbContextInitialiser>();
 
-        services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
-
-        services.AddAuthorizationBuilder();
-
-        services
-            .AddIdentityCore<ApplicationUser>()
-            .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddApiEndpoints();
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
+        {
+            options.Authority = configuration.GetValue<string>("Auth:Authority");
+            options.Audience = configuration.GetValue<string>("Auth:Audience");
+            options.TokenValidationParameters = new TokenValidationParameters()
+            {
+                NameClaimType = ClaimTypes.NameIdentifier
+            };
+        });
 
         services.AddSingleton(TimeProvider.System);
-        services.AddTransient<IIdentityService, IdentityService>();
-
-        services.AddAuthorization(options =>
-            options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator))
-        );
 
         return services;
     }
