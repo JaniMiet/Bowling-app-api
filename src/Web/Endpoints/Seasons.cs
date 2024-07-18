@@ -9,7 +9,7 @@ public class Seasons : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this).MapGet(GetSeasons).MapGet(GetSeasonReport, "{id}/Report");
-        app.MapGroup(this).MapPost(CreateSeason);
+        app.MapGroup(this).RequireAuthorization().MapPost(CreateSeason);
     }
 
     public async Task<IEnumerable<SeasonDto>> GetSeasons(ISender sender)
