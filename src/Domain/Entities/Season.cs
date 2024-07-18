@@ -2,13 +2,27 @@
 
 public class Season : BaseAuditableEntity
 {
-    public required int Year { get; set; }
-    public required SeasonType SeasonType { get; set; }
-    public required int Number { get; set; }
+    public int Year { get; set; }
+    public SeasonType SeasonType { get; set; }
+    public int Number { get; set; }
     public double AverageScore { get; set; } = 0;
     public double SetsThrownCount { get; set; } = 0;
     public double AverageScoreChangeToPreviousSeason { get; set; } = 0;
     public List<SeasonBowler> SeasonBowlers { get; set; } = [];
+
+    public Season() { }
+
+    public Season(int year, SeasonType seasonType, int previousSeasonNumber, List<Bowler> bowlers)
+    {
+        Year = year;
+        SeasonType = seasonType;
+        Number = previousSeasonNumber + 1;
+
+        foreach (var bowler in bowlers)
+        {
+            SeasonBowlers.Add(new SeasonBowler(this, bowler));
+        }
+    }
 
     public static int SeasonMinWeekNumber(SeasonType seasonType)
     {

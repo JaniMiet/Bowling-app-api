@@ -11,6 +11,16 @@ public class SeasonBowler : BaseAuditableEntity
     public int SeasonSetsThrowCount { get; set; }
     public List<Result> Results { get; set; } = [];
 
+    public SeasonBowler() { }
+
+    public SeasonBowler(Season season, Bowler bowler)
+    {
+        SeasonId = season.Id;
+        BowlerId = bowler.Id;
+        Season = season;
+        Bowler = bowler;
+    }
+
     public void UpdateSeasonBowlerStatistics(List<Result> currentSeasonResults, List<Result> previousSeasonResults)
     {
         var previousSeasonScores = previousSeasonResults.Select(r => r.Score);
