@@ -144,7 +144,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/IdResponse"
                 }
               }
             }
@@ -876,6 +876,15 @@
             "type": "number",
             "format": "double",
             "nullable": true
+          }
+        }
+      },
+      "IdResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
           }
         }
       },

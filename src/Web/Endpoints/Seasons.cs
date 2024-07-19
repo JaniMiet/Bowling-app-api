@@ -17,9 +17,9 @@ public class Seasons : EndpointGroupBase
         return await sender.Send(new GetSeasonsQuery());
     }
 
-    public async Task<string> CreateSeason(ISender sender, CreateSeasonCommand createSeasonCommand)
+    public async Task<IdResponse> CreateSeason(ISender sender, CreateSeasonCommand createSeasonCommand)
     {
-        return await sender.Send(createSeasonCommand);
+        return new IdResponse { Id = await sender.Send(createSeasonCommand) };
     }
 
     public async Task<SeasonReportDto> GetSeasonReport(ISender sender, string id)
