@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
+using BowlingApp.Application.Seasons.Queries.GetSeasons;
 using BowlingApp.Domain.Entities;
 using BowlingApp.Domain.Enums;
 using CsvHelper;
@@ -55,7 +56,7 @@ public class ApplicationDbContextInitialiser(
     {
         try
         {
-            await TrySeedAsync();
+            await TrySeedDataFromCsvsAsync();
         }
         catch (Exception ex)
         {
@@ -64,7 +65,7 @@ public class ApplicationDbContextInitialiser(
         }
     }
 
-    public async Task TrySeedAsync()
+    public async Task TrySeedDataFromCsvsAsync()
     {
         string currentDirectory = Directory.GetCurrentDirectory();
 
@@ -81,9 +82,12 @@ public class ApplicationDbContextInitialiser(
             .OrderBy(x => x.year)
             .ThenBy(x => x.seasonTypeNumber);
 
-        var results = new List<CsvResult>();
+        var csvResults = new List<CsvResult>();
 
         var seasonNumber = 0;
+
+        List<string> bowlerNames = [];
+        List<SeasonDto> seasonDtos = [];
 
         foreach (var file in files)
         {
@@ -93,14 +97,14 @@ public class ApplicationDbContextInitialiser(
             var year = file.year;
             var seasonType = file.seasonTypeNumber == 1 ? SeasonType.Spring : SeasonType.Autumn;
 
-            var season = new Season()
+            var season = new SeasonDto()
             {
                 SeasonType = seasonType,
                 Year = year,
-                Number = seasonNumber
+                Id = Guid.NewGuid().ToString(),
             };
-            await _context.Seasons.AddAsync(season);
-            await _context.SaveChangesAsync();
+
+            seasonDtos.Add(season);
 
             var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
@@ -125,6 +129,7 @@ public class ApplicationDbContextInitialiser(
                     if (index == 0)
                     {
                         name = player.Value;
+                        bowlerNames.Add(name);
                     }
                     else
                     {
@@ -133,7 +138,7 @@ public class ApplicationDbContextInitialiser(
 
                         if (isValidScore && score != 0)
                         {
-                            results.Add(
+                            csvResults.Add(
                                 new CsvResult
                                 {
                                     WeekNumber = int.Parse(matches[0].Value),
@@ -149,8 +154,9 @@ public class ApplicationDbContextInitialiser(
                 }
             }
         }
-        await _context.SaveChangesAsync();
-        var bowlerNames = results.Select(r => r.Name).Distinct();
+
+        /// Adding Bowlers
+        bowlerNames = bowlerNames.Distinct().ToList();
         foreach (var bowlerName in bowlerNames)
         {
             var nameParts = bowlerName.Split(' ');
@@ -162,85 +168,58 @@ public class ApplicationDbContextInitialiser(
             };
 
             await _context.Bowlers.AddAsync(bowler);
-            await _context.SaveChangesAsync();
+        }
+        await _context.SaveChangesAsync();
+
+        var bowlers = await _context.Bowlers.ToListAsync();
+
+        // Adding Seasons / SeasonBowlers
+        var seasons = new List<Season>();
+
+        foreach (var season in seasonDtos)
+        {
+            seasons.Add(new Season(season.Year, season.SeasonType, 0, bowlers));
         }
 
-        var seasons = await _context.Seasons.ToListAsync();
-        foreach (var season in seasons)
+        _context.AddRange(seasons);
+        Season.UpdateSeasonNumbers(seasons);
+        await _context.SaveChangesAsync();
+
+        // Adding Results
+        foreach (var csvResult in csvResults)
         {
-            var bowlers = await _context.Bowlers.ToListAsync();
-            foreach (var bowler in bowlers)
-            {
-                var seasonBowler = new SeasonBowler { Season = season, Bowler = bowler };
-                await _context.SeasonBowlers.AddAsync(seasonBowler);
-                await _context.SaveChangesAsync();
+            var nameParts = csvResult.Name.Split(' ');
+            var firstName = nameParts[0];
+            var lastName = nameParts[1];
 
-                var bowlerSeasonResults = results
-                    .Where(x =>
-                        x.Name.Contains(bowler.FirstName)
-                        && x.Name.Contains(bowler.LastName)
-                        && x.SeasonType == season.SeasonType
-                        && x.Year == season.Year
-                    )
-                    .ToList();
+            var seasonBowlers = seasons.SelectMany(s => s.SeasonBowlers);
 
-                foreach (var result in bowlerSeasonResults)
-                {
-                    await _context.Results.AddAsync(
-                        new Result
-                        {
-                            Score = result.Score,
-                            Year = result.Year,
-                            Week = result.WeekNumber,
-                            SeasonBowler = seasonBowler
-                        }
-                    );
-                }
+            var seasonBowlerId = seasonBowlers
+                .Single(sb =>
+                    sb.Bowler.FirstName == firstName
+                    && sb.Bowler.LastName == lastName
+                    && sb.Season.Year == csvResult.Year
+                    && sb.Season.SeasonType == csvResult.SeasonType
+                )
+                .Id;
 
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        foreach (var season in seasons)
-        {
-            var currentSeasonResults = await _context
-                .Results.Where(r => r.SeasonBowler.SeasonId == season.Id)
-                .ToListAsync();
-            var previousSeasonResults = await _context
-                .Results.Where(r => r.SeasonBowler.Season.Number == season.Number - 1)
-                .ToListAsync();
-
-            season.UpdateSeasonStatistics(currentSeasonResults, previousSeasonResults);
+            _context.Results.Add(new Result(csvResult.Score, seasonBowlerId, csvResult.WeekNumber, csvResult.Year));
         }
 
         await _context.SaveChangesAsync();
 
-        var allResults = await _context
-            .Results.Include(r => r.SeasonBowler)
-            .ThenInclude(sb => sb.Season)
-            .Include(r => r.SeasonBowler)
-            .ThenInclude(r => r.Bowler)
+        var seasonsWithResults = await _context
+            .Seasons.Include(s => s.SeasonBowlers)
+            .ThenInclude(sb => sb.Results)
+            .OrderBy(s => s.Number)
             .ToListAsync();
-        var seasonBowlers = allResults.Select(r => r.SeasonBowler).Distinct();
 
-        foreach (var seasonBowler in seasonBowlers)
+        // Update season and seasonBowler calculated statistics
+        foreach (var season in seasonsWithResults)
         {
-            var currentSeasonNumber = seasonBowler.Season.Number;
-            var previousSeasonNumber = currentSeasonNumber - 1;
-            var currentSeasonResults = allResults
-                .Where(r =>
-                    r.SeasonBowler.Season.Number == currentSeasonNumber
-                    && r.SeasonBowler.BowlerId == seasonBowler.BowlerId
-                )
-                .ToList();
-            var previousSeasonResults = allResults
-                .Where(r =>
-                    r.SeasonBowler.Season.Number == previousSeasonNumber
-                    && r.SeasonBowler.BowlerId == seasonBowler.BowlerId
-                )
-                .ToList();
+            var previousSeason = seasons.Find(s => s.Number == season.Number - 1);
 
-            seasonBowler.UpdateSeasonBowlerStatistics(currentSeasonResults, previousSeasonResults);
+            season.UpdateSeasonAndSeasonBowlerStatistics(season, previousSeason);
         }
 
         await _context.SaveChangesAsync();
