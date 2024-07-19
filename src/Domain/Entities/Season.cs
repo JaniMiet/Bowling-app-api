@@ -78,4 +78,17 @@ public class Season : BaseAuditableEntity
         AverageScoreChangeToPreviousSeason =
             (previousSeasonHasResults && currentSeasonHasResults) ? currentSeasonAverage - previousSeasonAverage : 0;
     }
+
+    public static void UpdateSeasonNumbers(List<Season> seasons)
+    {
+        seasons = [.. seasons.OrderBy(r => r.Year).ThenBy(r => r.SeasonType)];
+
+        var seasonNumber = 1;
+
+        foreach (var season in seasons)
+        {
+            season.Number = seasonNumber;
+            seasonNumber++;
+        }
+    }
 }

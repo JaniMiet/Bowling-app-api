@@ -35,6 +35,10 @@ public class CreateTodoListCommandHandler(IApplicationDbContext context) : IRequ
         _context.Seasons.Add(season);
         await _context.SaveChangesAsync(cancellationToken);
 
+        var seasons = await _context.Seasons.ToListAsync(cancellationToken);
+        Season.UpdateSeasonNumbers(seasons);
+        await _context.SaveChangesAsync(cancellationToken);
+
         return season.Id;
     }
 }
