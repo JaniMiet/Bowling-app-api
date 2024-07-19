@@ -8,6 +8,9 @@ namespace BowlingApp.Application.Seasons.Queries.GetSeasons;
 public record SeasonReportDto
 {
     [Required]
+    public string SeasonId { get; set; }
+
+    [Required]
     public int SetsCount { get; set; }
 
     [Required]
@@ -26,10 +29,7 @@ public record SeasonReportDto
     public List<TopImprover> TopImprovers { get; set; } = [];
 
     [Required]
-    public int MinWeekNumber { get; set; }
-
-    [Required]
-    public int MaxWeekNumber { get; set; }
+    public List<int> Weeks { get; set; }
 
     public record PlayerRow
     {
@@ -53,12 +53,12 @@ public record SeasonReportDto
     {
         var results = season.Bowlers.SelectMany(sb => sb.Results);
 
+        SeasonId = season.Id;
         SeasonType = season.SeasonType;
         SetsCount = results.Count() * 6;
         Average = results.Any() ? Math.Round(results.Select(r => r.Score).Average(), 1) : 0;
         Year = season.Year;
-        MinWeekNumber = Season.SeasonMinWeekNumber(SeasonType);
-        MaxWeekNumber = Season.SeasonMaxWeekNumber(SeasonType);
+        Weeks = Season.GetSeasonWeeks(SeasonType);
 
         foreach (var seasonBowler in season.Bowlers)
         {
@@ -72,9 +72,9 @@ public record SeasonReportDto
                 Average = bowlerResults.Any() ? bowlerResults.Select(r => r.Score).Average() : 0,
             };
 
-            for (var i = MinWeekNumber; i <= MaxWeekNumber; i++)
+            foreach (var week in Weeks)
             {
-                playerRow.Scores.Add(bowlerResults.FirstOrDefault(r => r.Week == i)?.Score);
+                playerRow.Scores.Add(bowlerResults.FirstOrDefault(r => r.Week == week)?.Score);
             }
 
             PlayerRows.Add(playerRow);

@@ -24,17 +24,45 @@ public class Season : BaseAuditableEntity
         }
     }
 
-    public static int SeasonMinWeekNumber(SeasonType seasonType)
+    public static List<int> GetSeasonWeeks(SeasonType seasonType)
     {
-        return seasonType == SeasonType.Spring ? 1 : 33;
+        var minWeekNumber = seasonType == SeasonType.Spring ? 1 : 33;
+        var maxWeekNumber = seasonType == SeasonType.Spring ? 21 : 52;
+
+        var weeks = new List<int>();
+
+        for (int i = minWeekNumber; i <= maxWeekNumber; i++)
+        {
+            weeks.Add(i);
+        }
+
+        return weeks;
     }
 
-    public static int SeasonMaxWeekNumber(SeasonType seasonType)
+    public void UpdateSeasonAndSeasonBowlerStatistics(Season currentSeason, Season? previousSeason)
     {
-        return seasonType == SeasonType.Spring ? 21 : 52;
+        UpdateSeasonStatistics(
+            currentSeason.SeasonBowlers.SelectMany(sb => sb.Results),
+            previousSeason == null ? [] : previousSeason.SeasonBowlers.SelectMany(sb => sb.Results)
+        );
+
+        foreach (var currentSeasonBowler in currentSeason.SeasonBowlers)
+        {
+            currentSeasonBowler.UpdateSeasonBowlerStatistics(
+                currentSeasonBowler.Results,
+                previousSeason == null
+                    ? []
+                    : previousSeason
+                        .SeasonBowlers.Where(sb => sb.Id == currentSeasonBowler.Id)
+                        .SelectMany(sb => sb.Results)
+            );
+        }
     }
 
-    public void UpdateSeasonStatistics(List<Result> currentSeasonResults, List<Result> previousSeasonResults)
+    private void UpdateSeasonStatistics(
+        IEnumerable<Result> currentSeasonResults,
+        IEnumerable<Result> previousSeasonResults
+    )
     {
         var previousSeasonScores = previousSeasonResults.Select(r => r.Score);
         var currentSeasonScores = currentSeasonResults.Select(r => r.Score);
@@ -42,10 +70,11 @@ public class Season : BaseAuditableEntity
         var currentSeasonAverage = currentSeasonScores.Any() ? currentSeasonScores.Average() : 0;
 
         AverageScore = currentSeasonAverage;
-        SetsThrownCount = currentSeasonResults.Count * 6;
+        SetsThrownCount = currentSeasonResults.Count() * 6;
 
-        var previousSeasonHasResults = previousSeasonResults.Count > 0;
-        var currentSeasonHasResults = currentSeasonResults.Count > 0;
+        var previousSeasonHasResults = previousSeasonResults.Any();
+        var currentSeasonHasResults = currentSeasonResults.Any();
+
         AverageScoreChangeToPreviousSeason =
             (previousSeasonHasResults && currentSeasonHasResults) ? currentSeasonAverage - previousSeasonAverage : 0;
     }

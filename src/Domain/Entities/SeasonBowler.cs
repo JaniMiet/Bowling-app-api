@@ -21,7 +21,10 @@ public class SeasonBowler : BaseAuditableEntity
         Bowler = bowler;
     }
 
-    public void UpdateSeasonBowlerStatistics(List<Result> currentSeasonResults, List<Result> previousSeasonResults)
+    public void UpdateSeasonBowlerStatistics(
+        IEnumerable<Result> currentSeasonResults,
+        IEnumerable<Result> previousSeasonResults
+    )
     {
         var previousSeasonScores = previousSeasonResults.Select(r => r.Score);
         var currentSeasonScores = currentSeasonResults.Select(r => r.Score);
@@ -29,10 +32,10 @@ public class SeasonBowler : BaseAuditableEntity
         var currentSeasonAverage = currentSeasonScores.Any() ? currentSeasonScores.Average() : 0;
 
         SeasonAverage = currentSeasonAverage;
-        SeasonSetsThrowCount = currentSeasonResults.Count * 6;
+        SeasonSetsThrowCount = currentSeasonResults.Count() * 6;
 
-        var previousSeasonHasResults = previousSeasonResults.Count > 0;
-        var currentSeasonHasResults = currentSeasonResults.Count > 0;
+        var previousSeasonHasResults = previousSeasonResults.Any();
+        var currentSeasonHasResults = currentSeasonResults.Any();
         ChangeToPreviousSeason =
             (previousSeasonHasResults && currentSeasonHasResults) ? currentSeasonAverage - previousSeasonAverage : 0;
     }

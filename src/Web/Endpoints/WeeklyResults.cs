@@ -1,4 +1,5 @@
-﻿using BowlingApp.Application.WeeklyResults.Queries.GetMostRecentWeekResults;
+﻿using BowlingApp.Application.WeeklyResults.Commands.UpdateWeeklyResult;
+using BowlingApp.Application.WeeklyResults.Queries.GetMostRecentWeekResults;
 using BowlingApp.Application.WeeklyResults.Queries.GetWeeklyResultsByBowlerId;
 
 namespace BowlingApp.Web.Endpoints;
@@ -10,6 +11,7 @@ public class WeeklyResults : EndpointGroupBase
         app.MapGroup(this)
             .MapGet(GetMostRecentWeekResults)
             .MapGet(GetWeeklyResultsByBowlerId, "ByBowlerId/${bowlerId}");
+        app.MapGroup(this).RequireAuthorization().MapPut(UpdateWeeklyResult, "UpdateWeeklyResult");
     }
 
     public async Task<WeeklyResultsDto> GetMostRecentWeekResults(ISender sender)
@@ -24,5 +26,11 @@ public class WeeklyResults : EndpointGroupBase
     )
     {
         return await sender.Send(new GetWeeklyResultsByBowlerIdQuery(bowlerId, seasonId));
+    }
+
+    public async Task<IResult> UpdateWeeklyResult(ISender sender, UpdateWeeklyResultCommand updateWeeklyResultCommand)
+    {
+        await sender.Send(updateWeeklyResultCommand);
+        return Results.Ok();
     }
 }

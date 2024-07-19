@@ -602,6 +602,36 @@
           }
         }
       }
+    },
+    "/api/WeeklyResults/UpdateWeeklyResult": {
+      "put": {
+        "tags": [
+          "WeeklyResults"
+        ],
+        "operationId": "UpdateWeeklyResult",
+        "requestBody": {
+          "x-name": "updateWeeklyResultCommand",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWeeklyResultCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -774,16 +804,20 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
+          "seasonId",
           "setsCount",
           "average",
           "year",
           "seasonType",
           "playerRows",
           "topImprovers",
-          "minWeekNumber",
-          "maxWeekNumber"
+          "weeks"
         ],
         "properties": {
+          "seasonId": {
+            "type": "string",
+            "minLength": 1
+          },
           "setsCount": {
             "type": "integer",
             "format": "int32"
@@ -811,13 +845,12 @@
               "$ref": "#/components/schemas/TopImprover"
             }
           },
-          "minWeekNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "maxWeekNumber": {
-            "type": "integer",
-            "format": "int32"
+          "weeks": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         }
       },
@@ -1183,6 +1216,34 @@
           "setAverageScore": {
             "type": "number",
             "format": "double"
+          }
+        }
+      },
+      "UpdateWeeklyResultCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "bowlerId",
+          "seasonId",
+          "week",
+          "score"
+        ],
+        "properties": {
+          "bowlerId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "seasonId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "week": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       }
