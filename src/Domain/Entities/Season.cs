@@ -52,9 +52,7 @@ public class Season : BaseAuditableEntity
                 currentSeasonBowler.Results,
                 previousSeason == null
                     ? []
-                    : previousSeason
-                        .SeasonBowlers.Where(sb => sb.Id == currentSeasonBowler.Id)
-                        .SelectMany(sb => sb.Results)
+                    : previousSeason.SeasonBowlers.Single(sb => sb.BowlerId == currentSeasonBowler.BowlerId).Results
             );
         }
     }
