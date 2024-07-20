@@ -1,10 +1,8 @@
 ﻿using System.Security.Claims;
 
-using BowlingApp.Application.Common.Interfaces;
-
 namespace BowlingApp.Web.Services;
 
-public class CurrentUser : IUser
+public class CurrentUser
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 

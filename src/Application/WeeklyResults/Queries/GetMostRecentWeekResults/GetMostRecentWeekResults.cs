@@ -16,18 +16,16 @@ public class GetMostRecentWeekResultsQueryHandler(IApplicationDbContext context)
     {
         var mostRecentYearWeek =
             await _context
-                .Results.OrderByDescending(r => r.Year)
+                .Results.OrderByDescending(r => r.Season.Year)
                 .ThenByDescending(r => r.Week)
-                .Select(r => new { r.Year, r.Week, })
+                .Select(r => new { r.Season.Year, r.Week, })
                 .FirstOrDefaultAsync(cancellationToken) ?? throw new Exception();
 
         var week = mostRecentYearWeek.Week;
         var year = mostRecentYearWeek.Year;
 
-        var bowlerResults2 = await _context.Results.ToListAsync();
-
         var bowlerResults = await _context
-            .Results.Where(r => r.Week == week && r.Year == year)
+            .Results.Where(r => r.Week == week && r.Season.Year == year)
             .Select(r => new BowlerResult
             {
                 Id = r.Id,

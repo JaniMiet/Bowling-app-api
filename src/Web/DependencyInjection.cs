@@ -1,7 +1,5 @@
 ﻿using Azure.Identity;
-using BowlingApp.Application.Common.Interfaces;
 using BowlingApp.Infrastructure.Data;
-using BowlingApp.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using NSwag;
 using NSwag.Generation.Processors.Security;
@@ -13,8 +11,6 @@ public static class DependencyInjection
     public static IServiceCollection AddWebServices(this IServiceCollection services)
     {
         services.AddDatabaseDeveloperPageExceptionFilter();
-
-        services.AddScoped<IUser, CurrentUser>();
 
         services.AddHttpContextAccessor();
 

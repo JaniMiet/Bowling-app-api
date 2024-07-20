@@ -1,6 +1,6 @@
 ﻿namespace BowlingApp.Domain.Entities;
 
-public class Bowler : BaseAuditableEntity
+public class Bowler : BaseEntity
 {
     public required string FirstName { get; set; }
     public required string LastName { get; set; }

@@ -203,7 +203,9 @@ public class ApplicationDbContextInitialiser(
                 )
                 .Id;
 
-            _context.Results.Add(new Result(csvResult.Score, seasonBowlerId, csvResult.WeekNumber, csvResult.Year));
+            var seasonId = seasons.Single(s => s.Year == csvResult.Year && s.SeasonType == csvResult.SeasonType).Id;
+
+            _context.Results.Add(new Result(csvResult.Score, csvResult.WeekNumber, seasonBowlerId, seasonId));
         }
 
         await _context.SaveChangesAsync();

@@ -34,11 +34,6 @@ public class UpdateWeeklyResultCommandHandler(IApplicationDbContext context)
             )
             .FirstOrDefaultAsync(cancellationToken);
 
-        var seasonYear = await _context
-            .Seasons.Where(s => s.Id == request.SeasonId)
-            .Select(s => s.Year)
-            .SingleAsync(cancellationToken);
-
         if (existingWeeklyResult == null)
         {
             // if the result doesnt exists beforehand and we get null score we don't have to update anything
@@ -50,7 +45,7 @@ public class UpdateWeeklyResultCommandHandler(IApplicationDbContext context)
                 .Select(sb => sb.Id)
                 .SingleAsync(cancellationToken);
 
-            var newWeeklyResult = new Result((int)request.Score, seasonBowlerId, request.Week, seasonYear);
+            var newWeeklyResult = new Result((int)request.Score, request.Week, seasonBowlerId, request.SeasonId);
 
             _context.Results.Add(newWeeklyResult);
         }

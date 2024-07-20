@@ -10,6 +10,8 @@ public abstract class BaseEntity
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public string Id { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    public DateTimeOffset Created { get; set; }
+    public DateTimeOffset LastModified { get; set; }
 
     private readonly List<BaseEvent> _domainEvents = new();
 

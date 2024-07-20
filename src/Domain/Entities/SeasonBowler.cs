@@ -1,6 +1,6 @@
 ﻿namespace BowlingApp.Domain.Entities;
 
-public class SeasonBowler : BaseAuditableEntity
+public class SeasonBowler : BaseEntity
 {
     public string SeasonId { get; set; } = null!;
     public Season Season { get; set; } = null!;

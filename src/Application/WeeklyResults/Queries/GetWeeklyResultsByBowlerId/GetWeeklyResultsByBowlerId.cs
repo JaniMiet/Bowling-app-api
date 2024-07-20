@@ -23,13 +23,13 @@ public class GetWeeklyResultsByUserIdQueryHandler(IApplicationDbContext context)
 
         return await query
             .Where(r => r.SeasonBowler.BowlerId == request.BowlerId)
-            .OrderBy(r => r.SeasonBowler.Season.Year)
+            .OrderBy(r => r.Season.Year)
             .ThenBy(r => r.Week)
             .Select(r => new ResultDto
             {
                 Id = r.Id,
                 Score = (int)Math.Round((double)r.Score / 6),
-                Year = r.Year,
+                Year = r.Season.Year,
                 Week = r.Week,
             })
             .ToListAsync(cancellationToken);

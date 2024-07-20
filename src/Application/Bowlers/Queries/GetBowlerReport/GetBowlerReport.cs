@@ -35,7 +35,7 @@ public class GetBowlerReportQueryHandler(IApplicationDbContext context)
                 Id = r.Id,
                 Score = r.Score,
                 Week = r.Week,
-                Year = r.Year
+                Year = r.Season.Year
             })
             .ToListAsync(cancellationToken);
 

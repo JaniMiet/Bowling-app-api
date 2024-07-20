@@ -1,6 +1,6 @@
 ﻿namespace BowlingApp.Domain.Entities;
 
-public class Season : BaseAuditableEntity
+public class Season : BaseEntity
 {
     public int Year { get; set; }
     public SeasonType SeasonType { get; set; }
@@ -9,6 +9,7 @@ public class Season : BaseAuditableEntity
     public double SetsThrownCount { get; set; } = 0;
     public double AverageScoreChangeToPreviousSeason { get; set; } = 0;
     public List<SeasonBowler> SeasonBowlers { get; set; } = [];
+    public List<Result> Results { get; set; } = [];
 
     public Season() { }
 
