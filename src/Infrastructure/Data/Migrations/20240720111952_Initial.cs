@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -19,15 +20,12 @@ namespace BowlingApp.Infrastructure.Data.Migrations
                     LastName = table.Column<string>(type: "text", nullable: false),
                     Gender = table.Column<int>(type: "integer", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<string>(type: "text", nullable: true),
-                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Bowlers", x => x.Id);
-                }
-            );
+                });
 
             migrationBuilder.CreateTable(
                 name: "Seasons",
@@ -39,20 +37,14 @@ namespace BowlingApp.Infrastructure.Data.Migrations
                     Number = table.Column<int>(type: "integer", nullable: false),
                     AverageScore = table.Column<double>(type: "double precision", nullable: false),
                     SetsThrownCount = table.Column<double>(type: "double precision", nullable: false),
-                    AverageScoreChangeToPreviousSeason = table.Column<double>(
-                        type: "double precision",
-                        nullable: false
-                    ),
+                    AverageScoreChangeToPreviousSeason = table.Column<double>(type: "double precision", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<string>(type: "text", nullable: true),
-                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Seasons", x => x.Id);
-                }
-            );
+                });
 
             migrationBuilder.CreateTable(
                 name: "SeasonBowlers",
@@ -65,9 +57,7 @@ namespace BowlingApp.Infrastructure.Data.Migrations
                     SeasonAverage = table.Column<double>(type: "double precision", nullable: true),
                     SeasonSetsThrowCount = table.Column<int>(type: "integer", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<string>(type: "text", nullable: true),
-                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -77,17 +67,14 @@ namespace BowlingApp.Infrastructure.Data.Migrations
                         column: x => x.BowlerId,
                         principalTable: "Bowlers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade
-                    );
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_SeasonBowlers_Seasons_SeasonId",
                         column: x => x.SeasonId,
                         principalTable: "Seasons",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade
-                    );
-                }
-            );
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Results",
@@ -99,9 +86,7 @@ namespace BowlingApp.Infrastructure.Data.Migrations
                     SeasonId = table.Column<string>(type: "text", nullable: false),
                     Week = table.Column<int>(type: "integer", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<string>(type: "text", nullable: true),
-                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "text", nullable: true)
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -111,37 +96,50 @@ namespace BowlingApp.Infrastructure.Data.Migrations
                         column: x => x.SeasonBowlerId,
                         principalTable: "SeasonBowlers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade
-                    );
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Results_Seasons_SeasonId",
                         column: x => x.SeasonId,
                         principalTable: "Seasons",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade
-                    );
-                }
-            );
+                        onDelete: ReferentialAction.Cascade);
+                });
 
-            migrationBuilder.CreateIndex(name: "IX_Results_SeasonBowlerId", table: "Results", column: "SeasonBowlerId");
+            migrationBuilder.CreateIndex(
+                name: "IX_Results_SeasonBowlerId",
+                table: "Results",
+                column: "SeasonBowlerId");
 
-            migrationBuilder.CreateIndex(name: "IX_Results_SeasonId", table: "Results", column: "SeasonId");
+            migrationBuilder.CreateIndex(
+                name: "IX_Results_SeasonId",
+                table: "Results",
+                column: "SeasonId");
 
-            migrationBuilder.CreateIndex(name: "IX_SeasonBowlers_BowlerId", table: "SeasonBowlers", column: "BowlerId");
+            migrationBuilder.CreateIndex(
+                name: "IX_SeasonBowlers_BowlerId",
+                table: "SeasonBowlers",
+                column: "BowlerId");
 
-            migrationBuilder.CreateIndex(name: "IX_SeasonBowlers_SeasonId", table: "SeasonBowlers", column: "SeasonId");
+            migrationBuilder.CreateIndex(
+                name: "IX_SeasonBowlers_SeasonId",
+                table: "SeasonBowlers",
+                column: "SeasonId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(name: "Results");
+            migrationBuilder.DropTable(
+                name: "Results");
 
-            migrationBuilder.DropTable(name: "SeasonBowlers");
+            migrationBuilder.DropTable(
+                name: "SeasonBowlers");
 
-            migrationBuilder.DropTable(name: "Bowlers");
+            migrationBuilder.DropTable(
+                name: "Bowlers");
 
-            migrationBuilder.DropTable(name: "Seasons");
+            migrationBuilder.DropTable(
+                name: "Seasons");
         }
     }
 }
