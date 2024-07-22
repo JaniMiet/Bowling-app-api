@@ -30,7 +30,16 @@ public class CreateBowlerCommandHandler(IApplicationDbContext context) : IReques
             Gender = request.Gender,
         };
 
-        await _context.Bowlers.AddAsync(bowler);
+        await _context.Bowlers.AddAsync(bowler, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        var seasons = await _context.Seasons.ToListAsync(cancellationToken);
+
+        foreach (var season in seasons)
+        {
+            _context.SeasonBowlers.Add(new SeasonBowler(season, bowler));
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
 
         return new BowlerDto

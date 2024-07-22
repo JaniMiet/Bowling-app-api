@@ -9,7 +9,8 @@ public class Bowlers : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-        app.MapGroup(this).MapGet(GetBowlers).MapPost(CreateBowler).MapGet(GetBowlerReport, "Report");
+        app.MapGroup(this).MapGet(GetBowlers).MapGet(GetBowlerReport, "Report");
+        app.MapGroup(this).RequireAuthorization().MapPost(CreateBowler);
     }
 
     public async Task<WeeklyResultsDto> GetMostRecentWeekResults(ISender sender)
