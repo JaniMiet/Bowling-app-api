@@ -50,19 +50,21 @@ public static class DependencyInjection
 
         services.AddScoped<ApplicationDbContextInitialiser>();
 
-        services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(options =>
-        {
-            options.Authority = configuration.GetValue<string>("Auth:Authority");
-            options.Audience = configuration.GetValue<string>("Auth:Audience");
-            options.TokenValidationParameters = new TokenValidationParameters()
+        services
+            .AddAuthentication(options =>
             {
-                NameClaimType = ClaimTypes.NameIdentifier
-            };
-        });
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.Authority = configuration.GetValue<string>("Auth:Authority");
+                options.Audience = configuration.GetValue<string>("Auth:Audience");
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    NameClaimType = ClaimTypes.NameIdentifier
+                };
+            });
 
         services.AddSingleton(TimeProvider.System);
 

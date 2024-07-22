@@ -3,13 +3,18 @@ using Microsoft.Extensions.Logging;
 
 namespace BowlingApp.Application.Common.Behaviours;
 
-public class PerformanceBehaviour<TRequest, TResponse>(
-    ILogger<TRequest> logger) : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+public class PerformanceBehaviour<TRequest, TResponse>(ILogger<TRequest> logger)
+    : IPipelineBehavior<TRequest, TResponse>
+    where TRequest : notnull
 {
     private readonly Stopwatch _timer = new Stopwatch();
     private readonly ILogger<TRequest> _logger = logger;
 
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(
+        TRequest request,
+        RequestHandlerDelegate<TResponse> next,
+        CancellationToken cancellationToken
+    )
     {
         _timer.Start();
 
@@ -23,8 +28,12 @@ public class PerformanceBehaviour<TRequest, TResponse>(
         {
             var requestName = typeof(TRequest).Name;
 
-            _logger.LogWarning("BowlingApp Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@Request}",
-                requestName, elapsedMilliseconds, request);
+            _logger.LogWarning(
+                "BowlingApp Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@Request}",
+                requestName,
+                elapsedMilliseconds,
+                request
+            );
         }
 
         return response;

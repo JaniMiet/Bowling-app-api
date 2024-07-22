@@ -8,11 +8,7 @@ public static class WebApplicationExtensions
     {
         var groupName = group.GetType().Name;
 
-        return app
-            .MapGroup($"/api/{groupName}")
-            .WithGroupName(groupName)
-            .WithTags(groupName)
-            .WithOpenApi();
+        return app.MapGroup($"/api/{groupName}").WithGroupName(groupName).WithTags(groupName).WithOpenApi();
     }
 
     public static WebApplication MapEndpoints(this WebApplication app)
@@ -21,8 +17,7 @@ public static class WebApplicationExtensions
 
         var assembly = Assembly.GetExecutingAssembly();
 
-        var endpointGroupTypes = assembly.GetExportedTypes()
-            .Where(t => t.IsSubclassOf(endpointGroupType));
+        var endpointGroupTypes = assembly.GetExportedTypes().Where(t => t.IsSubclassOf(endpointGroupType));
 
         foreach (var type in endpointGroupTypes)
         {

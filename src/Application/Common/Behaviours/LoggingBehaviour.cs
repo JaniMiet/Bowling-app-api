@@ -3,7 +3,8 @@ using Microsoft.Extensions.Logging;
 
 namespace BowlingApp.Application.Common.Behaviours;
 
-public class LoggingBehaviour<TRequest>(ILogger<TRequest> logger) : IRequestPreProcessor<TRequest> where TRequest : notnull
+public class LoggingBehaviour<TRequest>(ILogger<TRequest> logger) : IRequestPreProcessor<TRequest>
+    where TRequest : notnull
 {
     private readonly ILogger _logger = logger;
 
@@ -11,8 +12,7 @@ public class LoggingBehaviour<TRequest>(ILogger<TRequest> logger) : IRequestPreP
     {
         var requestName = typeof(TRequest).Name;
 
-        _logger.LogInformation("BowlingApp Request: {Name} {@Request}",
-            requestName, request);
+        _logger.LogInformation("BowlingApp Request: {Name} {@Request}", requestName, request);
 
         return Task.CompletedTask;
     }
