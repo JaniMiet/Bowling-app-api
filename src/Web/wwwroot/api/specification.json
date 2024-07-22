@@ -56,7 +56,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/Bowlers/Report": {
@@ -97,6 +102,35 @@
             }
           }
         }
+      }
+    },
+    "/api/Bowlers/id": {
+      "delete": {
+        "tags": [
+          "Bowlers"
+        ],
+        "operationId": "DeleteBowler",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/Seasons": {
@@ -345,21 +379,6 @@
           2
         ]
       },
-      "CreateBowlerCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "gender": {
-            "$ref": "#/components/schemas/Gender"
-          }
-        }
-      },
       "BowlerReport": {
         "type": "object",
         "additionalProperties": false,
@@ -440,6 +459,21 @@
           "week": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "CreateBowlerCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "gender": {
+            "$ref": "#/components/schemas/Gender"
           }
         }
       },
