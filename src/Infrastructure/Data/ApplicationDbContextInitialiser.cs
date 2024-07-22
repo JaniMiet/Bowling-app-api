@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
+using BowlingApp.Application.Common.Services;
 using BowlingApp.Application.Seasons.Queries.GetSeasons;
 using BowlingApp.Domain.Entities;
 using BowlingApp.Domain.Enums;
@@ -24,11 +25,13 @@ public static class InitialiserExtensions
 
 public class ApplicationDbContextInitialiser(
     ILogger<ApplicationDbContextInitialiser> logger,
-    ApplicationDbContext context
+    ApplicationDbContext context,
+    StatisticService statisticService
 )
 {
     private readonly ILogger<ApplicationDbContextInitialiser> _logger = logger;
     private readonly ApplicationDbContext _context = context;
+    private readonly StatisticService _statisticService = statisticService;
 
     public async Task InitialiseAsync(bool resetDatabase)
     {
@@ -209,22 +212,7 @@ public class ApplicationDbContextInitialiser(
         }
 
         await _context.SaveChangesAsync();
-
-        var seasonsWithResults = await _context
-            .Seasons.Include(s => s.SeasonBowlers)
-            .ThenInclude(sb => sb.Results)
-            .OrderBy(s => s.Number)
-            .ToListAsync();
-
-        // Update season and seasonBowler calculated statistics
-        foreach (var season in seasonsWithResults)
-        {
-            var previousSeason = seasons.Find(s => s.Number == season.Number - 1);
-
-            season.UpdateSeasonAndSeasonBowlerStatistics(season, previousSeason);
-        }
-
-        await _context.SaveChangesAsync();
+        await _statisticService.RecalculateCalculatedValues(new CancellationToken());
     }
 }
 

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using BowlingApp.Application.Common.Behaviours;
+using BowlingApp.Application.Common.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -9,6 +10,7 @@ public static class DependencyInjection
     {
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        services.AddTransient<StatisticService>();
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
