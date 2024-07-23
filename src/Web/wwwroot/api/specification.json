@@ -222,6 +222,26 @@
         }
       }
     },
+    "/api/Seasons/MostRecent/Report": {
+      "get": {
+        "tags": [
+          "Seasons"
+        ],
+        "operationId": "GetMostRecentSeasonReport",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeasonReportDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Seasons/id": {
       "delete": {
         "tags": [
@@ -573,7 +593,8 @@
           "firstName",
           "lastName",
           "average",
-          "scores"
+          "scores",
+          "setsThrownCount"
         ],
         "properties": {
           "id": {
@@ -599,6 +620,10 @@
               "format": "int32",
               "nullable": true
             }
+          },
+          "setsThrownCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

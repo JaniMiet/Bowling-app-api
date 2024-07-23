@@ -8,7 +8,10 @@ public class Seasons : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-        app.MapGroup(this).MapGet(GetSeasons).MapGet(GetSeasonReport, "{id}/Report");
+        app.MapGroup(this)
+            .MapGet(GetSeasons)
+            .MapGet(GetSeasonReport, "{id}/Report")
+            .MapGet(GetMostRecentSeasonReport, "MostRecent/Report/");
         app.MapGroup(this).RequireAuthorization().MapPost(CreateSeason).MapDelete(DeleteSeason, "id");
     }
 
@@ -31,5 +34,10 @@ public class Seasons : EndpointGroupBase
     public async Task<SeasonReportDto> GetSeasonReport(ISender sender, string id)
     {
         return await sender.Send(new GetSeasonReportQuery(id));
+    }
+
+    public async Task<SeasonReportDto> GetMostRecentSeasonReport(ISender sender)
+    {
+        return await sender.Send(new GetMostRecentSeasonReportQuery());
     }
 }
