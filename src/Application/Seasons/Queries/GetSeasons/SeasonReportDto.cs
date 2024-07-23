@@ -47,6 +47,9 @@ public record SeasonReportDto
 
         [Required]
         public List<int?> Scores { get; set; } = [];
+
+        [Required]
+        public required int SetsThrownCount { get; set; }
     }
 
     public SeasonReportDto(SeasonReportSeasonDto season)
@@ -70,6 +73,7 @@ public record SeasonReportDto
                 LastName = seasonBowler.LastName,
                 Id = seasonBowler.Id,
                 Average = bowlerResults.Any() ? bowlerResults.Select(r => r.Score).Average() : 0,
+                SetsThrownCount = bowlerResults.Count() * 6
             };
 
             foreach (var week in Weeks)
