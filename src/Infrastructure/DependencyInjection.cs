@@ -20,7 +20,6 @@ public static class DependencyInjection
     )
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
-        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
         Guard.Against.Null(connectionString, message: "Connection string 'DefaultConnection' not found.");
 
@@ -61,7 +60,7 @@ public static class DependencyInjection
             {
                 options.Authority = configuration.GetValue<string>("Auth:Authority");
                 options.Audience = configuration.GetValue<string>("Auth:Audience");
-                options.RequireHttpsMetadata = environment != "Development";
+                options.RequireHttpsMetadata = false;
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
                     NameClaimType = ClaimTypes.NameIdentifier
